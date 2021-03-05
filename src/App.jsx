@@ -17,7 +17,9 @@ class App extends React.Component {
       }, {
         headerName: "Best Buy Price", field: "best_buy_price"
       }],
-      rowData: []
+      rowData: [],
+      currentPage: [],
+      totalPages: []
     }
   }
 
@@ -25,7 +27,9 @@ class App extends React.Component {
     axios.get(`https://mlb20.theshow.com/apis/listings.json${query ? `?type=${query}` : ""}`)
     .then((response) => {
       this.setState({
-        rowData: response.data
+        rowData: response.data,
+        currentPage: response.data.page,
+        totalPages: response.total_pages
       })
     })
     .catch((err) => {
@@ -44,6 +48,7 @@ class App extends React.Component {
             <Grid.Column width={3}></Grid.Column>
             <Grid.Column width={10}>
               <br />
+              {this.state.currentPage}
               <Header>MLB The Show 20 Community Market Listings</Header>
               <Segment>
                 <div 
