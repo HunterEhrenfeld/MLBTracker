@@ -24,7 +24,12 @@ class App extends React.Component {
     })
     .catch((err) => {
       console.log(err);
-    })
+    });
+      const myData = [].concat(this.state.rowData)
+          .sort((a, b) => a.best_sell_price > b.best_sell_price ? 1 : -1)
+          .map((item, i) =>
+              <div key={i}> {item.name} {item.best_sell_price}{item.best_buy_price}</div>
+          );
   }
 
   componentDidMount () {
@@ -40,16 +45,18 @@ class App extends React.Component {
                           <th>Name</th>
                           <th>Sell</th>
                           <th>Buy</th>
+                          <th>Margin</th>
                       </tr>
                       </thead>
                       <tbody>
                       {
-                          this.state.rowData.map(
+                          this.state.rowData.sort((a, b) => (a.best_sell_price - a.best_buy_price) < (b.best_sell_price - b.best_buy_price) ? 1 : -1).map(
                               row =>
                                   <tr>
                                       <td>{row.name}</td>
                                       <td>{row.best_sell_price}</td>
                                       <td>{row.best_buy_price}</td>
+                                      <td>{row.best_sell_price - row.best_buy_price}</td>
                                   </tr> )
                       }
                       </tbody>
