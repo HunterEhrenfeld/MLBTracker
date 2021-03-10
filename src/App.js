@@ -5,31 +5,31 @@ import { AgGridReact } from 'ag-grid-react';
 import 'ag-grid-community/dist/styles/ag-grid.css';
 import 'ag-grid-community/dist/styles/ag-theme-balham.css';
 import Table from 'react-bootstrap/Table';
+import Button from 'react-bootstrap/Button';
 
 class App extends React.Component {
 
   constructor (props) {
     super(props);
     this.state = {
-      rowData: []
+      rowData: [],
+        page: [],
+        totalPages: []
     }
   }
 
   getListings(query) {
-    axios.get(`https://mlb20.theshow.com/apis/listings.json${query ? `?type=${query}` : ""}`)
+    axios.get(`https://mlb20.theshow.com/apis/listings.json${query ? `?page=${query}` : ""}`)
     .then((response) => {
       this.setState({
-        rowData: response.data.listings
+        rowData: response.data.listings,
+          page: response.data.page,
+          totalPages: response.data.total_pages
       })
     })
     .catch((err) => {
       console.log(err);
     });
-      const myData = [].concat(this.state.rowData)
-          .sort((a, b) => a.best_sell_price > b.best_sell_price ? 1 : -1)
-          .map((item, i) =>
-              <div key={i}> {item.name} {item.best_sell_price}{item.best_buy_price}</div>
-          );
   }
 
   componentDidMount () {
@@ -46,7 +46,7 @@ class App extends React.Component {
                           <th>Sell</th>
                           <th>Buy</th>
                           <th>Margin</th>
-                      </tr>
+                      </tr>(a,b)
                       </thead>
                       <tbody>
                       {
@@ -61,8 +61,9 @@ class App extends React.Component {
                       }
                       </tbody>
           </Table>
+            <Button disabled={this.state.page===1} variant="primary" onClick={this.getListings.bind(this, this.state.page - 1)}>Prev</Button>
+            <Button disabled={this.state.page+1===this.state.totalPages} variant="primary" onClick={this.getListings.bind(this, this.state.page + 1)}>Next</Button>
         </div>
-
     );
   }
 }
