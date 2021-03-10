@@ -1,9 +1,5 @@
 import React from 'react';
 import * as axios from 'axios';
-import {Grid, Segment, Header} from 'semantic-ui-react';
-import { AgGridReact } from 'ag-grid-react';
-import 'ag-grid-community/dist/styles/ag-grid.css';
-import 'ag-grid-community/dist/styles/ag-theme-balham.css';
 import Table from 'react-bootstrap/Table';
 import Button from 'react-bootstrap/Button';
 
@@ -30,6 +26,7 @@ class App extends React.Component {
     .catch((err) => {
       console.log(err);
     });
+
   }
 
   componentDidMount () {
