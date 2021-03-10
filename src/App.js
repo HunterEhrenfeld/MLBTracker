@@ -43,7 +43,7 @@ class App extends React.Component {
                           <th>Sell</th>
                           <th>Buy</th>
                           <th>Margin</th>
-                      </tr>(a,b)
+                      </tr>
                       </thead>
                       <tbody>
                       {
@@ -53,7 +53,7 @@ class App extends React.Component {
                                       <td>{row.name}</td>
                                       <td>{row.best_sell_price}</td>
                                       <td>{row.best_buy_price}</td>
-                                      <td>{row.best_sell_price - row.best_buy_price}</td>
+                                      <td>{(row.best_sell_price - row.best_buy_price) * 0.9}</td>
                                   </tr> )
                       }
                       </tbody>
