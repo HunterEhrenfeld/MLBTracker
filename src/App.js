@@ -1,7 +1,7 @@
 import React from 'react';
 import * as axios from 'axios';
 import Table from 'react-bootstrap/Table';
-import Button from 'react-bootstrap/Button';
+
 
 class App extends React.Component {
 
@@ -14,23 +14,43 @@ class App extends React.Component {
     }
   }
 
+  async getAll(){
+    var pageNo = 1;
+    const r = await axios.get('https://mlb20.theshow.com/apis/listings.json')
+    while (pageNo <= r.data.total_pages){
+      const request = await axios.get(`https://mlb20.theshow.com/apis/listings.json?page=${pageNo}`);
+      this.setState({
+          rowData: [...this.state.rowData.flat(), request.data.listings.flat()]
+        });
+      pageNo+=1
+    }
+    this.setState({
+      rowData: this.state.rowData.flat()
+    });
+    console.log(r.data.total_pages)
+    console.log(this.state.rowData)
+
+  }
+
   getListings(query) {
     axios.get(`https://mlb20.theshow.com/apis/listings.json${query ? `?page=${query}` : ""}`)
     .then((response) => {
       this.setState({
-        rowData: response.data.listings,
-          page: response.data.page,
+        // rowData: response.data.listings,
+          // page: response.data.page,
           totalPages: response.data.total_pages
       })
     })
     .catch((err) => {
       console.log(err);
     });
+    console.log(this.state.totalPages)
 
   }
 
   componentDidMount () {
-    this.getListings();
+    this.getAll();
+    console.log(this.state.rowData)
   }
 
   render() {
@@ -43,7 +63,7 @@ class App extends React.Component {
                           <th>Sell</th>
                           <th>Buy</th>
                           <th>Margin</th>
-                      </tr>(a,b)
+                      </tr>
                       </thead>
                       <tbody>
                       {
@@ -53,13 +73,12 @@ class App extends React.Component {
                                       <td>{row.name}</td>
                                       <td>{row.best_sell_price}</td>
                                       <td>{row.best_buy_price}</td>
-                                      <td>{row.best_sell_price - row.best_buy_price}</td>
+                                      <td>{(row.best_sell_price - row.best_buy_price) * 0.9}</td>
                                   </tr> )
                       }
                       </tbody>
           </Table>
-            <Button disabled={this.state.page===1} variant="primary" onClick={this.getListings.bind(this, this.state.page - 1)}>Prev</Button>
-            <Button disabled={this.state.page+1===this.state.totalPages} variant="primary" onClick={this.getListings.bind(this, this.state.page + 1)}>Next</Button>
+           
         </div>
     );
   }
