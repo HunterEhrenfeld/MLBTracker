@@ -16,9 +16,9 @@ class App extends React.Component {
 
   async getAll(){
     var pageNo = 1;
-    const r = await axios.get('https://mlb20.theshow.com/apis/listings.json')
+    const r = await axios.get('https://mlb21.theshow.com/apis/listings.json')
     while (pageNo <= r.data.total_pages){
-      const request = await axios.get(`https://mlb20.theshow.com/apis/listings.json?page=${pageNo}`);
+      const request = await axios.get(`https://mlb21.theshow.com/apis/listings.json?page=${pageNo}`);
       this.setState({
           rowData: [...this.state.rowData.flat(), request.data.listings.flat()]
         });
@@ -33,7 +33,7 @@ class App extends React.Component {
   }
 
   getListings(query) {
-    axios.get(`https://mlb20.theshow.com/apis/listings.json${query ? `?page=${query}` : ""}`)
+    axios.get(`https://mlb21.theshow.com/apis/listings.json${query ? `?page=${query}` : ""}`)
     .then((response) => {
       this.setState({
         // rowData: response.data.listings,
@@ -49,6 +49,9 @@ class App extends React.Component {
   }
 
   componentDidMount () {
+    this.setState({
+      rowData: []
+    });
     this.getAll();
     console.log(this.state.rowData)
   }
@@ -63,17 +66,19 @@ class App extends React.Component {
                           <th>Sell</th>
                           <th>Buy</th>
                           <th>Margin</th>
+                          <th>Margin Ratio</th>
                       </tr>
                       </thead>
                       <tbody>
                       {
-                          this.state.rowData.sort((a, b) => (a.best_sell_price - a.best_buy_price) < (b.best_sell_price - b.best_buy_price) ? 1 : -1).map(
+                          this.state.rowData.sort((a, b) => (((a.best_sell_price - a.best_buy_price) * 0.9)/a.best_buy_price) < (((b.best_sell_price - b.best_buy_price) * 0.9)/b.best_buy_price) ? 1 : -1).map(
                               row =>
                                   <tr>
-                                      <td>{row.name}</td>
+                                      <td>{row.listing_name}</td>
                                       <td>{row.best_sell_price}</td>
                                       <td>{row.best_buy_price}</td>
                                       <td>{(row.best_sell_price - row.best_buy_price) * 0.9}</td>
+                                      <td>{((row.best_sell_price - row.best_buy_price) * 0.9)/row.best_buy_price}</td>
                                   </tr> )
                       }
                       </tbody>
