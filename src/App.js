@@ -1,7 +1,9 @@
 import React from 'react';
 import * as axios from 'axios';
 import Table from 'react-bootstrap/Table';
-
+import Backdrop from '@material-ui/core/Backdrop';
+import CircularProgress from '@material-ui/core/CircularProgress';
+import { makeStyles } from '@material-ui/core/styles';
 
 class App extends React.Component {
 
@@ -10,19 +12,24 @@ class App extends React.Component {
     this.state = {
       rowData: [],
         page: [],
-        totalPages: []
+        totalPages: [],
+        loading: true
     }
   }
 
   async getAll(){
     var pageNo = 1;
     const r = await axios.get('https://mlb21.theshow.com/apis/listings.json')
+    this.setState({
+      rowData:[]
+    });
     while (pageNo <= r.data.total_pages){
-      const request = await axios.get(`https://mlb21.theshow.com/apis/listings.json?page=${pageNo}`);
-      this.setState({
-          rowData: [...this.state.rowData.flat(), request.data.listings.flat()]
-        });
-      pageNo+=1
+      await axios.get(`https://mlb21.theshow.com/apis/listings.json?page=${pageNo}`).then(res => { this.setState({
+          loading:false,
+          rowData: [...this.state.rowData.flat(), res.data.listings.flat()]
+        }); })
+      pageNo+=1;
+      console.log(this.state.rowData);
     }
     this.setState({
       rowData: this.state.rowData.flat()
@@ -57,35 +64,55 @@ class App extends React.Component {
   }
 
   render() {
-    return (
-        <div>
-          <Table striped bordered hover responsive size="sm" variant="dark">
-          <thead>
-                      <tr>
-                          <th>Name</th>
-                          <th>Sell</th>
-                          <th>Buy</th>
-                          <th>Margin</th>
-                          <th>Margin Ratio</th>
-                      </tr>
-                      </thead>
-                      <tbody>
-                      {
-                          this.state.rowData.sort((a, b) => (((a.best_sell_price - a.best_buy_price) * 0.9)/a.best_buy_price) < (((b.best_sell_price - b.best_buy_price) * 0.9)/b.best_buy_price) ? 1 : -1).map(
-                              row =>
-                                  <tr>
-                                      <td>{row.listing_name}</td>
-                                      <td>{row.best_sell_price}</td>
-                                      <td>{row.best_buy_price}</td>
-                                      <td>{(row.best_sell_price - row.best_buy_price) * 0.9}</td>
-                                      <td>{((row.best_sell_price - row.best_buy_price) * 0.9)/row.best_buy_price}</td>
-                                  </tr> )
-                      }
-                      </tbody>
-          </Table>
-           
-        </div>
-    );
+    const useStyles = makeStyles((theme) => ({
+            backdrop: {
+                zIndex: theme.zIndex.drawer + 1,
+                color: '#fff',
+            },
+        }));
+        //If Collecting Data, Display Loading Page
+        if (this.state.loading) {
+            return (
+                <Backdrop style={useStyles} open>
+                    <CircularProgress color="inherit"/>
+                </Backdrop>
+            )
+        }
+        else {
+          return (
+              <div>
+                <Table striped bordered hover responsive size="sm" variant="dark">
+                <thead>
+                            <tr>
+                                <th>Picture</th>
+                                <th>Name</th>
+                                <th>Sell</th>
+                                <th>Buy</th>
+                                <th>Margin</th>
+                                <th>Margin Ratio</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {
+                                this.state.rowData.sort((a, b) => (((a.best_sell_price - a.best_buy_price) * 0.9)/a.best_buy_price) < (((b.best_sell_price - b.best_buy_price) * 0.9)/b.best_buy_price) ? 1 : -1).filter(function(x) {
+                                  return x.best_buy_price !== undefined;
+                                }).map(
+                                    row =>
+                                        <tr>
+                                            <td><img src={row.item.img} alt="/derek.jpg"/>{console.log(row.item.img)}</td>
+                                            <td>{row.listing_name}</td>
+                                            <td>{row.best_sell_price}</td>
+                                            <td>{row.best_buy_price}</td>
+                                            <td>{(row.best_sell_price - row.best_buy_price) * 0.9}</td>
+                                            <td>{((row.best_sell_price - row.best_buy_price) * 0.9)/row.best_buy_price}</td>
+                                        </tr> )
+                            }
+                            </tbody>
+                </Table>
+                
+              </div>
+          );
+        }
   }
 }
 
