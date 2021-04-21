@@ -4,6 +4,9 @@ import Table from 'react-bootstrap/Table';
 import Backdrop from '@material-ui/core/Backdrop';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import { makeStyles } from '@material-ui/core/styles';
+import Modal from 'react-bootstrap/Modal';
+import Button from 'react-bootstrap/Button';
+import PopUp from './PopUp';
 
 class App extends React.Component {
 
@@ -15,6 +18,24 @@ class App extends React.Component {
         totalPages: [],
         loading: true
     }
+  }
+
+  handleClick(e){
+    alert("hi! this is " + e.listing_name);
+    return (<Modal.Dialog>
+      <Modal.Header closeButton>
+        <Modal.Title>Modal title</Modal.Title>
+      </Modal.Header>
+
+  <Modal.Body>
+    <p>Modal body text goes here.</p>
+  </Modal.Body>
+
+    <Modal.Footer>
+      <Button variant="secondary">Close</Button>
+      <Button variant="primary">Save changes</Button>
+    </Modal.Footer>
+  </Modal.Dialog>);
   }
 
   async getAll(){
@@ -94,12 +115,14 @@ class App extends React.Component {
                             </thead>
                             <tbody>
                             {
-                                this.state.rowData.sort((a, b) => (((a.best_sell_price - a.best_buy_price) * 0.9)/a.best_buy_price) < (((b.best_sell_price - b.best_buy_price) * 0.9)/b.best_buy_price) ? 1 : -1).filter(function(x) {
+                                this.state.rowData.sort((a, b) => (((a.best_sell_price - a.best_buy_price) * 0.9)) < (((b.best_sell_price - b.best_buy_price) * 0.9)) ? -1 : 1)
+                                .sort((a, b) => (((a.best_sell_price - a.best_buy_price) * 0.9)/a.best_buy_price) < (((b.best_sell_price - b.best_buy_price) * 0.9)/b.best_buy_price) ? 1 : -1)
+                                .filter(function(x) {
                                   return x.best_buy_price !== undefined;
                                 }).map(
                                     row =>
-                                        <tr>
-                                            <td><img src={row.item.img} alt="/derek.jpg"/>{console.log(row.item.img)}</td>
+                                        <tr key={row.item.uuid}>
+                                            <td><PopUp row={row}/></td>
                                             <td>{row.listing_name}</td>
                                             <td>{row.best_sell_price}</td>
                                             <td>{row.best_buy_price}</td>
